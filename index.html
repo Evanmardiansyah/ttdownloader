@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Downloader - No Watermark</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* CSS GAYA TIKTOK DARK MODE */
+        :root {
+            --bg-color: #121212;
+            --card-color: #1e1e1e;
+            --primary: #fe2c55; /* TikTok Red/Pink */
+            --secondary: #25f4ee; /* TikTok Cyan */
+            --text: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-color);
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            border: 1px solid #333;
+        }
+
+        h1 {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        h1 span.pink { color: var(--primary); }
+        h1 span.cyan { color: var(--secondary); }
+
+        p.subtitle {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            padding-right: 50px;
+            border-radius: 12px;
+            border: 2px solid #333;
+            background-color: #2a2a2a;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(254, 44, 85, 0.2);
+        }
+
+        .paste-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        .paste-btn:hover { color: white; }
+
+        button.process-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, var(--primary), #ff0050);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(254, 44, 85, 0.3);
+        }
+
+        button.process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(254, 44, 85, 0.5);
+        }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* RESULT BOX */
+        .result-box {
+            display: none; /* Hidden by default */
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #333;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .thumbnail {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .video-info h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            white-space: nowrap; 
+            overflow: hidden;
+            text-overflow: ellipsis; 
+        }
+
+        .video-info p {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+
+        .download-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .btn-video {
+            background-color: var(--secondary);
+            color: #000;
+        }
+        
+        .btn-video:hover { background-color: #1ee3dd; }
+
+        .btn-music {
+            background-color: #2a2a2a;
+            color: white;
+            border: 1px solid #444;
+        }
+
+        .btn-music:hover { background-color: #333; }
+
+        .loader {
+            display: none;
+            margin: 10px auto;
+            border: 4px solid #333;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .footer {
+            margin-top: 20px;
+            font-size: 0.7rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1><span class="pink">TikTok</span> <span class="cyan">Saver</span></h1>
+        <p class="subtitle">Download Video TikTok Tanpa Watermark</p>
+
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="Tempel link TikTok di sini...">
+            <button class="paste-btn" onclick="pasteText()"><i class="fas fa-paste"></i></button>
+        </div>
+
+        <button class="process-btn" onclick="fetchVideo()" id="btnSubmit">Download Sekarang</button>
+        <div class="loader" id="loader"></div>
+
+        <div class="result-box" id="resultBox">
+            <img src="" alt="Thumbnail" class="thumbnail" id="thumbImg">
+            
+            <div class="video-info">
+                <h3 id="videoTitle">Judul Video</h3>
+                <p><i class="fas fa-user"></i> <span id="authorName">Author</span></p>
+                
+                <a href="#" target="_blank" class="download-btn btn-video" id="dlVideo">
+                    <i class="fas fa-download"></i> Download Video (No WM)
+                </a>
+                
+                <a href="#" target="_blank" class="download-btn btn-music" id="dlMusic">
+                    <i class="fas fa-music"></i> Download Musik (MP3)
+                </a>
+                
+                <p style="font-size: 0.7rem; color: #ff5555; margin-top: 10px;">
+                    *Jika video terbuka dan tidak terdownload, klik titik tiga/kanan lalu pilih "Download" atau "Save Video As".
+                </p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            Build with ❤️ on GitHub Pages
+        </div>
+    </div>
+
+    <script>
+        // Fitur Paste Otomatis
+        async function pasteText() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('urlInput').value = text;
+            } catch (err) {
+                alert('Izin paste ditolak atau browser tidak support.');
+            }
+        }
+
+        // Fungsi Utama Fetch Video
+        async function fetchVideo() {
+            const url = document.getElementById('urlInput').value;
+            const btn = document.getElementById('btnSubmit');
+            const loader = document.getElementById('loader');
+            const resultBox = document.getElementById('resultBox');
+
+            // Reset Tampilan
+            resultBox.style.display = 'none';
+
+            // Validasi Input
+            if (!url) {
+                alert("Harap masukkan link TikTok terlebih dahulu!");
+                return;
+            }
+            if (!url.includes("tiktok.com")) {
+                alert("Link tidak valid! Pastikan link dari TikTok.");
+                return;
+            }
+
+            // Ubah Status Tombol Loading
+            btn.disabled = true;
+            btn.innerText = "Sedang Memproses...";
+            loader.style.display = 'block';
+
+            try {
+                // MENGGUNAKAN API PUBLIK TIKWM
+                const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`;
+                
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.code === 0) {
+                    // Ambil Data dari API
+                    const vid = data.data;
+                    
+                    // Masukkan ke HTML
+                    document.getElementById('thumbImg').src = vid.cover;
+                    document.getElementById('videoTitle').innerText = vid.title || "Video TikTok";
+                    document.getElementById('authorName').innerText = vid.author.nickname;
+                    
+                    document.getElementById('dlVideo').href = vid.play; // Link No WM
+                    document.getElementById('dlMusic').href = vid.music; // Link MP3
+
+                    // Tampilkan Hasil
+                    resultBox.style.display = 'block';
+                } else {
+                    alert("Video tidak ditemukan atau akun di-private.");
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert("Terjadi kesalahan koneksi API. Coba lagi nanti.");
+            } finally {
+                // Kembalikan Tombol seperti semula
+                btn.disabled = false;
+                btn.innerText = "Download Sekarang";
+                loader.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
